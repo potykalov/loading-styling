@@ -3,48 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skeleton UI</title>
+    <title>Loading Styling</title>
   </head>
 
   <body>
     <main class="page">
-      <article class="article-skeleton">
-        <!-- Заголовок статьи -->
-        <div class="skeleton title"></div>
-        <div class="skeleton subtitle"></div>
+      <article class="article">
+        <section id="loading" class="article-skeleton">
+          <div class="skeleton title"></div>
+          <div class="skeleton subtitle"></div>
 
-        <!-- Автор -->
-        <div class="author">
-          <div class="skeleton avatar"></div>
+          <div class="author">
+            <div class="skeleton avatar"></div>
 
-          <div class="author-info">
-            <div class="skeleton author-name"></div>
-            <div class="skeleton author-date"></div>
+            <div class="author-info">
+              <div class="skeleton author-name"></div>
+              <div class="skeleton author-date"></div>
+            </div>
           </div>
-        </div>
 
-        <!-- Изображение -->
-        <div class="skeleton image"></div>
+          <div class="skeleton image"></div>
 
-        <!-- Текст статьи -->
-        <div class="article-content">
-          <div class="skeleton line"></div>
-          <div class="skeleton line"></div>
-          <div class="skeleton line short"></div>
+          <div class="article-content">
+            <div class="skeleton line"></div>
+            <div class="skeleton line"></div>
+            <div class="skeleton line short"></div>
 
-          <div class="skeleton section-title"></div>
+            <div class="skeleton section-title"></div>
 
-          <div class="skeleton line"></div>
-          <div class="skeleton line"></div>
-          <div class="skeleton line"></div>
-          <div class="skeleton line medium"></div>
+            <div class="skeleton line"></div>
+            <div class="skeleton line"></div>
+            <div class="skeleton line"></div>
+            <div class="skeleton line medium"></div>
 
-          <div class="skeleton section-title"></div>
+            <div class="skeleton section-title"></div>
 
-          <div class="skeleton line"></div>
-          <div class="skeleton line"></div>
-          <div class="skeleton line short"></div>
-        </div>
+            <div class="skeleton line"></div>
+            <div class="skeleton line"></div>
+            <div class="skeleton line short"></div>
+          </div>
+        </section>
+
+        <section id="content" class="loaded-content" hidden></section>
+
+        <section id="error" class="error" hidden>
+          <h2>Не удалось загрузить данные</h2>
+          <p>Проверьте подключение к серверу и попробуйте ещё раз.</p>
+          <button id="retry" type="button">Повторить</button>
+        </section>
       </article>
     </main>
   </body>
