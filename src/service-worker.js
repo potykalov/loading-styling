@@ -1,89 +1,88 @@
 const CACHE_NAME = "loading-styling-v1";
-
-const APP_SHELL = ["./", "./index.html"];
+const PRECACHE_URLS = __PRECACHE_MANIFEST__;
 
 self.addEventListener("install", (event) => {
-  console.log("Service Worker: install");
-
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.addAll(PRECACHE_URLS);
+      await self.skipWaiting();
+    })(),
   );
-
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker: activate");
-
   event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) =>
-        Promise.all(
-          cacheNames
-            .filter((name) => name !== CACHE_NAME)
-            .map((name) => caches.delete(name)),
-        ),
-      ),
-  );
+    (async () => {
+      const cacheNames = await caches.keys();
 
-  self.clients.claim();
+      await Promise.all(
+        cacheNames
+          .filter(
+            (name) =>
+              name.startsWith("loading-styling-") && name !== CACHE_NAME,
+          )
+          .map((name) => caches.delete(name)),
+      );
+
+      await self.clients.claim();
+    })(),
+  );
 });
 
 self.addEventListener("fetch", (event) => {
-  const request = event.request;
-  const url = new URL(request.url);
+  const { request } = event;
 
   if (request.method !== "GET") return;
 
-  // API не кэшируем — запрос идёт напрямую на сервер
-  if (url.pathname.includes("/api/")) return;
+  const url = new URL(request.url);
 
-  // Не кэшируем сторонние ресурсы
+  // Запросы к API и сторонним ресурсам не кэшируем.
   if (url.origin !== self.location.origin) return;
 
-  // HTML: сначала сеть, при отсутствии соединения — кэш
+  // Для страницы используем сеть, а при отсутствии интернета — precache.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
+      (async () => {
+        try {
+          const response = await fetch(request);
 
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, copy);
-            });
+          if (response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, response.clone());
           }
 
           return response;
-        })
-        .catch(async () => {
+        } catch {
+          const cache = await caches.open(CACHE_NAME);
+
           return (
-            (await caches.match(request)) ||
-            (await caches.match("./index.html"))
+            (await cache.match(request)) ||
+            (await cache.match(
+              new URL("./index.html", self.registration.scope).href,
+            ))
           );
-        }),
+        }
+      })(),
     );
 
     return;
   }
 
-  // Статические ресурсы: сначала кэш, затем сеть
+  // Собранные JS/CSS и прочие статические файлы уже лежат в precache.
+  const isPrecached = PRECACHE_URLS.some(
+    (asset) =>
+      new URL(asset, self.registration.scope).href === request.url,
+  );
+
+  if (!isPrecached) return;
+
   event.respondWith(
-    caches.match(request).then(async (cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cachedResponse = await cache.match(request);
 
-      const response = await fetch(request);
-
-      if (response.ok) {
-        const copy = response.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, copy);
-        });
-      }
-
-      return response;
-    }),
+      return cachedResponse || fetch(request);
+    })(),
   );
 });
