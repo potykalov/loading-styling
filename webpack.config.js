@@ -23,7 +23,7 @@ class ServiceWorkerPlugin {
               /\.(?:html|js|css|svg|png|jpe?g|webp|ico|woff2?)$/i.test(name),
             )
             .filter((name) => name !== "service-worker.js")
-            .map((name) => \`./\${name}\`);
+            .map((name) => "./" + name);
 
           const serviceWorkerTemplate = fs.readFileSync(
             path.resolve(__dirname, "src/service-worker.js"),
