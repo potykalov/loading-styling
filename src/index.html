@@ -1,11 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="./css/styles.css" />
-    <script src="./js/index.js"></script>
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Демонстрация состояний загрузки и отсутствия соединения"
+    />
+    <title>Loading</title>
   </head>
-  <body></body>
+
+  <body>
+    <main class="page">
+      <section class="status" id="status" aria-live="polite" aria-busy="true">
+        <div class="loader" id="loader" aria-hidden="true"></div>
+
+        <h1 class="status__title" id="status-title">Загружаем данные</h1>
+
+        <p class="status__text" id="status-text">Пожалуйста, подождите…</p>
+
+        <button class="retry-button" id="retry-button" type="button" hidden>
+          Попробовать ещё раз
+        </button>
+      </section>
+    </main>
+  </body>
 </html>
