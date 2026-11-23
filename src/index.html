@@ -3,27 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
-    <meta
-      name="description"
-      content="Демонстрация состояний загрузки и отсутствия соединения"
-    />
-    <title>Loading</title>
+    <title>Document</title>
   </head>
-
   <body>
-    <main class="page">
-      <section class="status" id="status" aria-live="polite" aria-busy="true">
-        <div class="loader" id="loader" aria-hidden="true"></div>
+    <div class="skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton skeleton-avatar"></div>
 
-        <h1 class="status__title" id="status-title">Загружаем данные</h1>
+        <div class="skeleton-info">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-subtitle"></div>
+        </div>
+      </div>
 
-        <p class="status__text" id="status-text">Пожалуйста, подождите…</p>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line skeleton-line-short"></div>
 
-        <button class="retry-button" id="retry-button" type="button" hidden>
-          Попробовать ещё раз
-        </button>
-      </section>
-    </main>
+      <div class="skeleton-footer">
+        <div class="skeleton skeleton-block"></div>
+        <div class="skeleton skeleton-block"></div>
+        <div class="skeleton skeleton-block"></div>
+      </div>
+    </div>
   </body>
 </html>
