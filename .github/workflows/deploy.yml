@@ -37,7 +37,7 @@ jobs:
       - name: Build
         run: yarn build
         env:
-          API_URL: https://loading-styling-api.onrender.com
+          API_URL: https://loading-styling-yn5f.onrender.com
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
