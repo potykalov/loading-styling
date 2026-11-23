@@ -10,14 +10,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ origin: "*" }));
 
 app.use(async (ctx, next) => {
-  await new Promise((resolve) => {
-    setTimeout(resolve, 2500);
-  });
+  if (ctx.path.startsWith("/api/")) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 2500);
+    });
+  }
 
   await next();
 });
 
-// API
+router.get("/", (ctx) => {
+  ctx.body = "Loading Styling API is running";
+});
+
 router.get("/api/status", (ctx) => {
   ctx.body = {
     status: "ok",
@@ -25,13 +30,9 @@ router.get("/api/status", (ctx) => {
   };
 });
 
-router.get("/", (ctx) => {
-  ctx.body = "Loading Styling API is running";
-});
-
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`API server is listening on port ${PORT}`);
 });

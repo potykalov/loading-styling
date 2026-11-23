@@ -1,64 +1,90 @@
-const CACHE_NAME = "loading-styling-v1";
+const CACHE_NAME = "loading-styling-v2";
 
 const APP_SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(APP_SHELL);
-    }),
-  );
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
 
-  self.skipWaiting();
+      // Получаем HTML приложения
+      const response = await fetch("./index.html");
+      const html = await response.text();
+
+      // Находим JS-файлы, добавленные Webpack
+      const scripts = [
+        ...html.matchAll(/<script[^>]+src=["']([^"']+)["']/g),
+      ].map((match) => match[1]);
+
+      // Кэшируем HTML и JS
+      await cache.addAll([...APP_SHELL, ...scripts]);
+
+      await self.skipWaiting();
+    })(),
+  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
+    (async () => {
+      const cacheKeys = await caches.keys();
+
+      await Promise.all(
+        cacheKeys
+          .filter(
+            (key) => key.startsWith("loading-styling-") && key !== CACHE_NAME,
+          )
           .map((key) => caches.delete(key)),
       );
-    }),
-  );
 
-  self.clients.claim();
+      await self.clients.claim();
+    })(),
+  );
 });
 
-// Перехват запросов
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Не кэшируем POST и запросы к API
   if (request.method !== "GET" || url.pathname.includes("/api/")) {
     return;
   }
 
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches
-        .match(request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-
-          return fetch(request).then((response) => {
-            if (response.ok) {
-              const copy = response.clone();
-
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(request, copy);
-              });
-            }
-
-            return response;
-          });
-        })
-        .catch(() => {
-          return caches.match("./index.html");
-        }),
-    );
+  // Обрабатываем только ресурсы своего сайта
+  if (url.origin !== self.location.origin) {
+    return;
   }
+
+  event.respondWith(
+    (async () => {
+      const cachedResponse = await caches.match(request);
+
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      try {
+        const response = await fetch(request);
+
+        if (response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, response.clone());
+        }
+
+        return response;
+      } catch (error) {
+        // При навигации без интернета возвращаем закэшированную страницу
+        if (request.mode === "navigate") {
+          const cachedPage = await caches.match("./index.html");
+
+          if (cachedPage) {
+            return cachedPage;
+          }
+        }
+
+        throw error;
+      }
+    })(),
+  );
 });
