@@ -20,10 +20,10 @@ class ServiceWorkerPlugin {
             .getAssets()
             .map(({ name }) => name)
             .filter((name) =>
-              /\\.(?:html|js|css|svg|png|jpe?g|webp|ico|woff2?)$/i.test(name),
+              /\.(?:html|js|css|svg|png|jpe?g|webp|ico|woff2?)$/i.test(name),
             )
             .filter((name) => name !== "service-worker.js")
-            .map((name) => `./${name}`);
+            .map((name) => \`./\${name}\`);
 
           const serviceWorkerTemplate = fs.readFileSync(
             path.resolve(__dirname, "src/service-worker.js"),
@@ -57,7 +57,7 @@ export default (env, argv) => {
 
   const apiUrl = (
     configuredApiUrl || "http://localhost:3000"
-  ).replace(/\\/+$/, "");
+  ).replace(/\/+$/, "");
 
   return {
     entry: "./src/js/index.js",
@@ -74,7 +74,7 @@ export default (env, argv) => {
     module: {
       rules: [
         {
-          test: /\\.css$/i,
+          test: /\.css$/i,
           use: ["style-loader", "css-loader"],
         },
       ],
