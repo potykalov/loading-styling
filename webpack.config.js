@@ -93,11 +93,15 @@ export default (env, argv) => {
     ],
 
     devServer: {
+      host: "127.0.0.1",
+      port: 8080,
       static: {
         directory: path.resolve(__dirname, "dist"),
       },
-      port: "auto",
-      open: true,
+      devMiddleware: {
+        publicPath: "/",
+      },
+      open: false,
       hot: true,
       historyApiFallback: true,
     },
