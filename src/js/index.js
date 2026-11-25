@@ -7,13 +7,25 @@ const contentElement = document.querySelector("#content");
 const errorElement = document.querySelector("#error");
 const retryButton = document.querySelector("#retry");
 
+let isLoading = false;
+
 async function loadData() {
+  if (isLoading) return;
+
+  isLoading = true;
+  retryButton.disabled = true;
+
   loadingElement.hidden = false;
   contentElement.hidden = true;
   errorElement.hidden = true;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+
   try {
-    const response = await fetch(`${API_URL}/api/status`);
+    const response = await fetch(`${API_URL}/api/status`, {
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       throw new Error(`Ошибка сервера: ${response.status}`);
@@ -33,6 +45,14 @@ async function loadData() {
 
     loadingElement.hidden = true;
     errorElement.hidden = false;
+
+    if (error.name === "AbortError") {
+      console.error("Превышено время ожидания ответа сервера");
+    }
+  } finally {
+    clearTimeout(timeoutId);
+    isLoading = false;
+    retryButton.disabled = false;
   }
 }
 
